@@ -1,0 +1,34 @@
+#!/bin/bash
+#filename:.rizhirc.sh
+backup_path=/home/denghaohai/shell脚本:/home/denghaohai/海贼c
+dest_dir=/home/denghaohai/shell脚本/文件打包
+datenow=`date +"%Y_%m_%d_%H:%M"`
+date=`date +"%Y_%m_%d_%H_%M"`
+if [[ ! -d $dest_dir ]];then
+   echo "$datenow 【ERROR】 The Dest dir $dest_dir not exists" >> /home/denghaohai/shell脚本/rizhi 
+   return
+fi
+echo "$datenow backup started!" >> /home/denghaohai/shell脚本/rizhi
+for i in `echo $backup_path | tr ":" "\n"`;
+do
+     if [[ ! -d $i ]];then
+        echo "$datenow backup 【ERROR】The dir $i not exist"
+     fi
+     target=`echo $i | cut -d "/" -f "2-" | tr "/" "_"`
+     target=${target}_${date}
+     echo $target
+     tar czPf "${dest_dir}/${target}.tar.gz" $i 
+     size=`du -m "${dest_dir}/${target}.tar.gz" | cut -f 1`
+     if [[ $? -eq 0 ]];then
+         echo "$datanow backup $i --> $target +${size}M" >> /home/denghaohai/shell脚本/rizhi
+     else
+         echo "$datenow 【ERROR】Something ....\e">> /home/denghaohai/shell脚本/rizhi 
+     fi 
+done
+del_list=`find $dest_dir -name "*.tar.gz" -mmin +3`
+for i in $del_list;
+do 
+        daxiao= `du -m "$i" | cut -f 1`
+        mv -f "$i" /home/denghaohai/shell脚本/rizhi
+        echo "$datanow delete $i --> remove -$daxiao M">> /home/denghaohai/shell脚本/rizhi
+done
